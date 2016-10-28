@@ -5,10 +5,129 @@
 const char SERVER_IP[] = "127.0.0.1";
 const unsigned short PORT_NUMBER = 31400;
 
+
+class Session
+{
+public:
+
+	Session(boost::asio::io_service& io_service)
+		: m_Socket(io_service)
+	{
+	}
+
+	boost::asio::ip::tcp::socket& Socket()
+	{
+		return m_Socket;
+	}
+
+	void PostReceive()
+	{
+		memset(&m_ReceiveBuffer, '\0', sizeof(m_ReceiveBuffer));
+
+		m_Socket.async_read_some
+		(
+			boost::asio::buffer(m_ReceiveBuffer),
+			boost::bind(&Session::handle_receive, this,
+				boost::asio::placeholders::error,
+				boost::asio::placeholders::bytes_transferred)
+		);
+	}
+
+	void PostQuery(const string query)
+	{
+		char szMessage[128] = { 0, };
+		sprintf_s(szMessage, 128 - 1, query.c_str());
+		m_WriteMessage = szMessage;
+
+		boost::asio::async_write(m_Socket, boost::asio::buffer(m_WriteMessage),
+			boost::bind(&Session::handle_write, this,
+				boost::asio::placeholders::error,
+				boost::asio::placeholders::bytes_transferred)
+		);
+	}
+
+private:
+	void handle_write(const boost::system::error_code& /*error*/, size_t /*bytes_transferred*/)
+	{
+	}
+
+	void handle_receive(const boost::system::error_code& error, size_t bytes_transferred)
+	{
+		if (error)
+		{
+			if (error == boost::asio::error::eof)
+			{
+				std::cout << "클라이언트와 연결이 끊어졌습니다" << std::endl;
+			}
+			else
+			{
+				std::cout << "error No: " << error.value() << " error Message: " << error.message() << std::endl;
+			}
+		}
+		else
+		{
+			const std::string strRecvMessage = m_ReceiveBuffer.data();
+			std::cout << "클라이언트에서 받은 메시지: " << strRecvMessage << ", 받은 크기: " << bytes_transferred << std::endl;
+
+			PostReceive();
+		}
+	}
+
+	boost::asio::ip::tcp::socket m_Socket;
+	std::string m_WriteMessage;
+	std::array<char, 128> m_ReceiveBuffer;
+};
+
+class TCP_Server
+{
+public:
+	TCP_Server(boost::asio::io_service& io_service)
+		: m_acceptor(io_service, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), PORT_NUMBER))
+	{
+		m_pSession = nullptr;
+		StartAccept();
+	}
+
+	~TCP_Server()
+	{
+		if (m_pSession != nullptr)
+		{
+			delete m_pSession;
+		}
+	}
+
+public:
+	void StartAccept()
+	{
+		std::cout << "클라이언트 접속 대기....." << std::endl;
+
+		m_pSession = new Session(m_acceptor.get_io_service());
+
+		m_acceptor.async_accept(m_pSession->Socket(),
+			boost::bind(&TCP_Server::handle_accept,
+				this,
+				m_pSession,
+				boost::asio::placeholders::error)
+		);
+	}
+
+	void handle_accept(Session* pSession, const boost::system::error_code& error)
+	{
+		if (!error)
+		{
+			std::cout << "클라이언트 접속 성공" << std::endl;
+
+			pSession->PostReceive();
+		}
+	}
+
+	int m_nSeqNumber;
+	boost::asio::ip::tcp::acceptor m_acceptor;
+	Session* m_pSession;
+};
+
 boost::asio::io_service io_service;
-boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), PORT_NUMBER);
-boost::asio::ip::tcp::acceptor acceptor(io_service, endpoint);
-boost::asio::ip::tcp::socket socket_(io_service);
+TCP_Server server(io_service);
 
 QImage Mat2QImage_color(const cv::Mat3b &src) {
 	QImage dest(src.cols, src.rows, QImage::Format_ARGB32);
@@ -36,28 +155,11 @@ QImage Mat2QImage_depth(const cv::Mat_<double> &src)
 	return dest;
 }
 
-
-void MainWindow::test_thread()
-{
-	kinect.update();
-	kinect.drawDepth();
-	kinect.showDepth();
-
-	Mat mat_img = kinect.scaleMat;
-	QImage q_image;
-
-	cv::resize(mat_img, mat_img, cv::Size(ui->label_KinectDepth->width(), ui->label_KinectDepth->height()));
-	q_image = Mat2QImage_color(mat_img);
-	ui->label_KinectDepth->setPixmap(QPixmap::fromImage(q_image));
-}
-
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-	m_thread = new ThreadTest(this);
-	connect(m_thread, SIGNAL(tick(int)), this, SLOT(test_thread(void)));
 }
 
 MainWindow::~MainWindow()
@@ -68,22 +170,13 @@ MainWindow::~MainWindow()
 void MainWindow::showEvent(QShowEvent* event) {
 	QWidget::showEvent(event);
 
-	std::cout << "Waiting for a client..." << std::endl;
-	acceptor.accept(socket_);
-	std::cout << "Client connected" << std::endl;
+	boost::thread thread(boost::bind(&boost::asio::io_service::run, &io_service));
 }
 
 void MainWindow::on_pushButton_StillShotCapture_clicked()
 {
-	std::array<char, 128> buf; buf.assign(0);
-	char szMessage[128] = { 0, }; sprintf_s(szMessage, 128 - 1, "Re:%s", &buf[0]);
-	int nMsgLen = strnlen_s(szMessage, 128 - 1);
+	server.m_pSession->PostQuery("still_capture");
 
-	boost::system::error_code error;
-	socket_.write_some(boost::asio::buffer(szMessage, nMsgLen), error);
-	std::cout << "클라이언트에 보낸 메시지: " << szMessage << std::endl;
-
-	//std::cout << boost::chrono::system_clock::now() << '\n';
 	kinect.update();
 	kinect.drawDepth();
 	kinect.saveDepth();
@@ -91,69 +184,51 @@ void MainWindow::on_pushButton_StillShotCapture_clicked()
 
 void MainWindow::on_pushButton_SequenceCapture_clicked()
 {
-	for (;;)
-	{
-		std::array<char, 128> buf; 
-		buf.assign(0);
-		boost::system::error_code error;
-		size_t len = socket_.read_some(boost::asio::buffer(buf), error);
-
-		if (error) {
-			if (error == boost::asio::error::eof) {
-
-				std::cout << "클라이언트와 연결이 끊어졌습니다" << std::endl;
-			}
-			else
-			{
-				std::cout << "error No: " << error.value() << " error Message: " << error.message() << std::endl;
-			}
-			break;
-		}
-
-		std::cout << "클라이언트에서 받은 메시지: " << &buf[0] << std::endl;
-		char szMessage[128] = { 0, }; 
-		sprintf_s(szMessage, 128 - 1, "Re:%s", &buf[0]);
-		int nMsgLen = strnlen_s(szMessage, 128 - 1);
-
-		std::cout << boost::chrono::system_clock::now() << '\n';
-		kinect.update();
-		kinect.drawDepth();
-		kinect.showDepth();
-		cv::waitKey(30);
-
-		boost::system::error_code ignored_error;
-		socket_.write_some(boost::asio::buffer(szMessage, nMsgLen), ignored_error);
-		std::cout << "클라이언트에 보낸 메시지: " << szMessage << std::endl;
-	}
+	//for (;;)
+	//{
+	//	std::array<char, 128> buf; 
+	//	buf.assign(0);
+	//	boost::system::error_code error;
+	//	size_t len = socket_.read_some(boost::asio::buffer(buf), error);
+	//
+	//	if (error) {
+	//		if (error == boost::asio::error::eof) {
+	//
+	//			std::cout << "클라이언트와 연결이 끊어졌습니다" << std::endl;
+	//		}
+	//		else
+	//		{
+	//			std::cout << "error No: " << error.value() << " error Message: " << error.message() << std::endl;
+	//		}
+	//		break;
+	//	}
+	//
+	//	std::cout << "클라이언트에서 받은 메시지: " << &buf[0] << std::endl;
+	//	char szMessage[128] = { 0, }; 
+	//	sprintf_s(szMessage, 128 - 1, "Re:%s", &buf[0]);
+	//	int nMsgLen = strnlen_s(szMessage, 128 - 1);
+	//
+	//	std::cout << boost::chrono::system_clock::now() << '\n';
+	//	kinect.update();
+	//	kinect.drawDepth();
+	//	kinect.showDepth();
+	//	cv::waitKey(30);
+	//
+	//	boost::system::error_code ignored_error;
+	//	socket_.write_some(boost::asio::buffer(szMessage, nMsgLen), ignored_error);
+	//	std::cout << "클라이언트에 보낸 메시지: " << szMessage << std::endl;
+	//}
 }
 
 void MainWindow::on_pushButton_StreamOn_clicked()
 {
-	m_thread->start();
-
-	char szMessage[128] = { 0, };
-	sprintf_s(szMessage, 128 - 1, "stream_on");
-	int nMsgLen = strnlen_s(szMessage, 128 - 1);
-	boost::system::error_code error;
-	socket_.write_some(boost::asio::buffer(szMessage, nMsgLen), error);
-	std::cout << "클라이언트에 보낸 메시지: " << szMessage << std::endl;
+	server.m_pSession->PostQuery("stream_on");
+	stream_on_flag = true;
+	boost::thread thread(boost::bind(&MainWindow::stream_on, this));
 }
 
 void MainWindow::on_pushButton_StreamOff_clicked()
 {
-	m_thread->terminate();
-
-	char szMessage[128] = { 0, };
-	sprintf_s(szMessage, 128 - 1, "stream_off");
-	int nMsgLen = strnlen_s(szMessage, 128 - 1);
-	boost::system::error_code error;
-	socket_.write_some(boost::asio::buffer(szMessage, nMsgLen), error);
-	std::cout << "클라이언트에 보낸 메시지: " << szMessage << std::endl;
-
-	Mat mat_img = Mat::zeros(640, 480, CV_32FC1);
-	QImage q_image;
-	cv::resize(mat_img, mat_img, cv::Size(ui->label_KinectDepth->width(), ui->label_KinectDepth->height()));
-	q_image = Mat2QImage_depth(mat_img);
-
-	ui->label_KinectDepth->setPixmap(QPixmap::fromImage(q_image));
+	server.m_pSession->PostQuery("stream_off");
+	stream_on_flag = false;
 }
