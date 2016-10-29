@@ -10,6 +10,9 @@
 #include <boost/bind.hpp>
 #include <boost/chrono.hpp>
 #include <boost/thread.hpp>
+#include <boost\filesystem.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
+
 #include "app.h"
 #include "threadtest.h"
 #include <opencv2\imgproc\imgproc.hpp>
@@ -32,7 +35,6 @@ public:
     ~MainWindow();
 	void showEvent(QShowEvent *ev);
 	bool stream_on_flag = false;
-	bool middle_of_saving = false;
 	bool stream_save_flag = false;
 	bool still_save_flag = false;
 	
@@ -58,8 +60,9 @@ private:
 	int still_cnt = 0;
 	int sequence_cnt = 0;
 
-	string still_save_dir_path = "result/still/";
-	string sequence_save_dir_path = "result/sequence/";
+	string sandbox_dir_path;
+	string still_save_dir_path;
+	string sequence_save_dir_path;
 };
 
 #endif // MAINWINDOW_H

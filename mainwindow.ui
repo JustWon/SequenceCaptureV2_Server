@@ -15,10 +15,13 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <widget class="QPushButton" name="pushButton_StillShotCapture">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>40</x>
-      <y>20</y>
+      <y>60</y>
       <width>101</width>
       <height>23</height>
      </rect>
@@ -29,12 +32,12 @@
    </widget>
    <widget class="QPushButton" name="pushButton_SequenceCapture">
     <property name="enabled">
-     <bool>true</bool>
+     <bool>false</bool>
     </property>
     <property name="geometry">
      <rect>
       <x>170</x>
-      <y>20</y>
+      <y>60</y>
       <width>101</width>
       <height>23</height>
      </rect>
@@ -47,7 +50,7 @@
     <property name="geometry">
      <rect>
       <x>40</x>
-      <y>60</y>
+      <y>20</y>
       <width>101</width>
       <height>23</height>
      </rect>
@@ -66,14 +69,20 @@
      </rect>
     </property>
     <property name="text">
-     <string>TextLabel</string>
+     <string>Kinect Depth 1</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButton_StreamOff">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>170</x>
-      <y>60</y>
+      <y>20</y>
       <width>101</width>
       <height>23</height>
      </rect>
@@ -86,7 +95,7 @@
     <property name="geometry">
      <rect>
       <x>300</x>
-      <y>60</y>
+      <y>20</y>
       <width>101</width>
       <height>23</height>
      </rect>
@@ -105,7 +114,10 @@
      </rect>
     </property>
     <property name="text">
-     <string>TextLabel</string>
+     <string>Basler Color 1</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
     </property>
    </widget>
    <widget class="QLabel" name="label_BaslerColor2">
@@ -118,7 +130,10 @@
      </rect>
     </property>
     <property name="text">
-     <string>TextLabel</string>
+     <string>Basler Color 2</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
     </property>
    </widget>
    <widget class="QLabel" name="label_BaslerColor3">
@@ -131,7 +146,10 @@
      </rect>
     </property>
     <property name="text">
-     <string>TextLabel</string>
+     <string>Basler Color 3</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
     </property>
    </widget>
    <widget class="QLabel" name="label_BaslerColor4">
@@ -144,7 +162,10 @@
      </rect>
     </property>
     <property name="text">
-     <string>TextLabel</string>
+     <string>Basler Color 4</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
     </property>
    </widget>
   </widget>

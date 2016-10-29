@@ -160,15 +160,6 @@ inline void Kinect::showDepth()
     // Scaling ( 0-8000 -> 255-0 )
     depthMat.convertTo( scaleMat, CV_8U, -255.0 / 8000.0, 255.0 );
     cv::applyColorMap(scaleMat, scaleMat, cv::COLORMAP_BONE );
-
-    // Show Image
-    //cv::imshow( "Depth", scaleMat );
-
-	// Save Image 
-	//char filename[1024];
-	//sprintf(filename, "result/image%d.png", cnt++);
-	//cv::imwrite(filename, depthMat);
-	//cvSaveImage(filename, &IplImage(depthMat));
 }
 
 // Save Depth

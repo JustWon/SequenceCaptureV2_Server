@@ -1,4 +1,4 @@
-//#include "stdafx.h"
+
 #include "SyncSignal.h"
 
 
@@ -82,13 +82,7 @@ BOOL CSyncSignal::Initialize()
 
 
 	retval = pClassColorCameraCapture->Initialize();
-	cout << "Color Cameras: " << retval << endl;
-
-
-#if defined(KINECT)
-	pClassKinectCapture->Initialize();
-#endif
-
+	cout << "Recognized color cameras: " << retval << endl;
 
 	return TRUE;
 }

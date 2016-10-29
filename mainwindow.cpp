@@ -5,6 +5,8 @@
 const char SERVER_IP[] = "127.0.0.1";
 const unsigned short PORT_NUMBER = 31400;
 
+string g_sandbox_dir_path;
+
 class Session
 {
 public:
@@ -45,7 +47,7 @@ public:
 		);
 	}
 
-private:
+public:
 	void handle_write(const boost::system::error_code& /*error*/, size_t /*bytes_transferred*/)
 	{
 	}
@@ -115,7 +117,7 @@ public:
 		if (!error)
 		{
 			std::cout << "클라이언트 접속 성공" << std::endl;
-
+			m_pSession->PostQuery(g_sandbox_dir_path);
 			pSession->PostReceive();
 		}
 	}
@@ -170,65 +172,64 @@ void MainWindow::stream_on()
 {
 	while (stream_on_flag)
 	{
-		if (!middle_of_saving)
-		{
-			// Kinect v2 depth
-			kinect.update();
-			kinect.drawDepth();
-			kinect.showDepth();
+		// Kinect v2 depth
+		kinect.update();
+		kinect.drawDepth();
+		kinect.showDepth();
 
-			Mat mat_kinect_stream = kinect.scaleMat;
-			QImage q_image;
+		Mat mat_kinect_stream = kinect.scaleMat;
+		QImage q_image;
 
-			cv::resize(mat_kinect_stream, mat_kinect_stream, cv::Size(ui->label_KinectDepth->width(), ui->label_KinectDepth->height()));
-			q_image = Mat2QImage_color(mat_kinect_stream);
-			ui->label_KinectDepth->setPixmap(QPixmap::fromImage(q_image));
+		cv::resize(mat_kinect_stream, mat_kinect_stream, cv::Size(ui->label_KinectDepth->width(), ui->label_KinectDepth->height()));
+		q_image = Mat2QImage_color(mat_kinect_stream);
+		ui->label_KinectDepth->setPixmap(QPixmap::fromImage(q_image));
 
-			// Basler colors
-			vec_color.clear();
-			signal->ImageGrab(vec_color);
+		// Basler colors
+		vec_color.clear();
+		signal->ImageGrab(vec_color);
 
-			// color
-			Mat mat_basler_stream = vec_color.at(0);
-			Mat resized_img;
-			cv::resize(mat_basler_stream, resized_img, cv::Size(ui->label_BaslerColor1->width(), ui->label_BaslerColor1->height()));
-			q_image = Mat2QImage_color(resized_img);
-			ui->label_BaslerColor1->setPixmap(QPixmap::fromImage(q_image));
+		// color
+		Mat mat_basler_stream = vec_color.at(0);
+		Mat resized_img;
+		cv::resize(mat_basler_stream, resized_img, cv::Size(ui->label_BaslerColor1->width(), ui->label_BaslerColor1->height()));
+		q_image = Mat2QImage_color(resized_img);
+		ui->label_BaslerColor1->setPixmap(QPixmap::fromImage(q_image));
 			
-			mat_basler_stream = vec_color.at(1);
-			cv::resize(mat_basler_stream, resized_img, cv::Size(ui->label_BaslerColor2->width(), ui->label_BaslerColor2->height()));
-			q_image = Mat2QImage_color(resized_img);
-			ui->label_BaslerColor2->setPixmap(QPixmap::fromImage(q_image));
+		mat_basler_stream = vec_color.at(1);
+		cv::resize(mat_basler_stream, resized_img, cv::Size(ui->label_BaslerColor2->width(), ui->label_BaslerColor2->height()));
+		q_image = Mat2QImage_color(resized_img);
+		ui->label_BaslerColor2->setPixmap(QPixmap::fromImage(q_image));
 			
-			mat_basler_stream = vec_color.at(2);
-			cv::resize(mat_basler_stream, resized_img, cv::Size(ui->label_BaslerColor3->width(), ui->label_BaslerColor3->height()));
-			q_image = Mat2QImage_color(resized_img);
-			ui->label_BaslerColor3->setPixmap(QPixmap::fromImage(q_image));
+		mat_basler_stream = vec_color.at(2);
+		cv::resize(mat_basler_stream, resized_img, cv::Size(ui->label_BaslerColor3->width(), ui->label_BaslerColor3->height()));
+		q_image = Mat2QImage_color(resized_img);
+		ui->label_BaslerColor3->setPixmap(QPixmap::fromImage(q_image));
 			
-			mat_basler_stream = vec_color.at(3);
-			cv::resize(mat_basler_stream, resized_img, cv::Size(ui->label_BaslerColor4->width(), ui->label_BaslerColor4->height()));
-			q_image = Mat2QImage_color(resized_img);
-			ui->label_BaslerColor4->setPixmap(QPixmap::fromImage(q_image));
+		mat_basler_stream = vec_color.at(3);
+		cv::resize(mat_basler_stream, resized_img, cv::Size(ui->label_BaslerColor4->width(), ui->label_BaslerColor4->height()));
+		q_image = Mat2QImage_color(resized_img);
+		ui->label_BaslerColor4->setPixmap(QPixmap::fromImage(q_image));
 
 
-			if (stream_save_flag) {
-				kinect.saveDepth(sequence_save_dir_path, sequence_cnt);
-				for (int i = 0; i < vec_color.size(); i++)
-				{
-					imwrite(sequence_save_dir_path + "color" + to_string(i) + "_" + to_string(sequence_cnt) + ".bmp", vec_color[i]);
-				}
-				sequence_cnt++;
+		if (stream_save_flag) {
+			kinect.saveDepth(sequence_save_dir_path, sequence_cnt);
+			for (int i = 0; i < vec_color.size(); i++)
+			{
+				imwrite(sequence_save_dir_path + "color" + to_string(i) + "_" + to_string(sequence_cnt) + ".bmp", vec_color[i]);
 			}
-			if (still_save_flag) {
-				kinect.saveDepth(still_save_dir_path, still_cnt);
-				for (int i = 0; i < vec_color.size(); i++)
-				{
-					imwrite(still_save_dir_path + "color" + to_string(i) + "_" + to_string(still_cnt) + ".bmp", vec_color[i]);
-				}
-				still_cnt++;
-				still_save_flag = false;
-			}
+			std::cout << sequence_save_dir_path + " seqeucne " + to_string(sequence_cnt) + " saved" << endl;
+			sequence_cnt++;
 		}
+		if (still_save_flag) {
+			kinect.saveDepth(still_save_dir_path, still_cnt);
+			for (int i = 0; i < vec_color.size(); i++)
+			{
+				imwrite(still_save_dir_path + "color" + to_string(i) + "_" + to_string(still_cnt) + ".bmp", vec_color[i]);
+			}
+			std::cout << still_save_dir_path + " still shot " + to_string(still_cnt) + " saved" << endl;
+			still_cnt++;
+			still_save_flag = false;
+		}		
 	}
 
 	// stream off
@@ -248,6 +249,17 @@ void MainWindow::stream_on()
 	}
 }
 
+std::wstring FormatTime(boost::posix_time::ptime now)
+{
+	using namespace boost::posix_time;
+	static std::locale loc(std::wcout.getloc(),
+		new wtime_facet(L"%Y%m%d_%H%M%S"));
+
+	std::basic_stringstream<wchar_t> wss;
+	wss.imbue(loc);
+	wss << now;
+	return wss.str();
+}
 
 void MainWindow::showEvent(QShowEvent* event) {
 	QWidget::showEvent(event);
@@ -256,6 +268,24 @@ void MainWindow::showEvent(QShowEvent* event) {
 
 	signal = new CSyncSignal;
 	signal->Initialize();
+
+	boost::filesystem::create_directory("result");
+	using namespace boost::posix_time;
+	ptime now = second_clock::universal_time();
+
+	std::wstring ws(FormatTime(now));
+	std::wcout << "Sandbox name: " << ws << std::endl;
+
+	sandbox_dir_path = "result/" + std::string(ws.begin(), ws.end());
+	boost::filesystem::create_directory(sandbox_dir_path);
+
+	still_save_dir_path = sandbox_dir_path + "/still/";
+	boost::filesystem::create_directory(still_save_dir_path);
+
+	sequence_save_dir_path = sandbox_dir_path + "/sequence/";
+	boost::filesystem::create_directory(sequence_save_dir_path);
+
+	g_sandbox_dir_path = sandbox_dir_path;
 }
 
 void MainWindow::on_pushButton_StillShotCapture_clicked()
@@ -266,7 +296,16 @@ void MainWindow::on_pushButton_StillShotCapture_clicked()
 
 void MainWindow::on_pushButton_SequenceCapture_clicked()
 {
-	stream_save_flag = !stream_save_flag;
+	if (!stream_save_flag)
+	{
+		stream_save_flag = true;
+		server.m_pSession->PostQuery("sequence_capture_start");
+	}
+	else
+	{
+		stream_save_flag = false;
+		server.m_pSession->PostQuery("sequence_capture_stop");
+	}
 }
 
 void MainWindow::on_pushButton_StreamOn_clicked()
@@ -274,12 +313,21 @@ void MainWindow::on_pushButton_StreamOn_clicked()
 	server.m_pSession->PostQuery("stream_on");
 	stream_on_flag = true;
 	boost::thread thread(boost::bind(&MainWindow::stream_on, this));
+
+	ui->pushButton_StreamOn->setEnabled(false);
+	ui->pushButton_StreamOff->setEnabled(true);
+	ui->pushButton_StillShotCapture->setEnabled(true);
+	ui->pushButton_SequenceCapture->setEnabled(true);
 }
 
 void MainWindow::on_pushButton_StreamOff_clicked()
 {
 	server.m_pSession->PostQuery("stream_off");
 	stream_on_flag = false;
+	ui->pushButton_StreamOn->setEnabled(true);
+	ui->pushButton_StreamOff->setEnabled(false);
+	ui->pushButton_StillShotCapture->setEnabled(false);
+	ui->pushButton_SequenceCapture->setEnabled(false);
 }
 
 void MainWindow::on_pushButton_Quit_clicked()
@@ -288,5 +336,6 @@ void MainWindow::on_pushButton_Quit_clicked()
 	stream_on_flag = false;
 
 	server.m_pSession->PostQuery("program_quit");
-	close();	
+	server.m_pSession->m_Socket.close();
+	close();
 }
