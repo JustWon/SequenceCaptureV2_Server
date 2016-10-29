@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1145</width>
-    <height>668</height>
+    <width>1222</width>
+    <height>665</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -28,6 +28,9 @@
     </property>
    </widget>
    <widget class="QPushButton" name="pushButton_SequenceCapture">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>170</x>
@@ -92,17 +95,56 @@
      <string>Quit</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton_ColorCapture">
+   <widget class="QLabel" name="label_BaslerColor1">
     <property name="geometry">
      <rect>
-      <x>450</x>
-      <y>20</y>
-      <width>101</width>
-      <height>23</height>
+      <x>30</x>
+      <y>390</y>
+      <width>261</width>
+      <height>171</height>
      </rect>
     </property>
     <property name="text">
-     <string>Color Capture</string>
+     <string>TextLabel</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_BaslerColor2">
+    <property name="geometry">
+     <rect>
+      <x>340</x>
+      <y>400</y>
+      <width>261</width>
+      <height>171</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>TextLabel</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_BaslerColor3">
+    <property name="geometry">
+     <rect>
+      <x>630</x>
+      <y>400</y>
+      <width>261</width>
+      <height>171</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>TextLabel</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_BaslerColor4">
+    <property name="geometry">
+     <rect>
+      <x>910</x>
+      <y>400</y>
+      <width>261</width>
+      <height>171</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>TextLabel</string>
     </property>
    </widget>
   </widget>
@@ -111,7 +153,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1145</width>
+     <width>1222</width>
      <height>21</height>
     </rect>
    </property>

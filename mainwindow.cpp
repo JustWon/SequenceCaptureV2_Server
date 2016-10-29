@@ -170,24 +170,82 @@ void MainWindow::stream_on()
 {
 	while (stream_on_flag)
 	{
-		kinect.update();
-		kinect.drawDepth();
-		kinect.showDepth();
+		if (!middle_of_saving)
+		{
+			// Kinect v2 depth
+			kinect.update();
+			kinect.drawDepth();
+			kinect.showDepth();
 
-		Mat mat_img = kinect.scaleMat;
-		QImage q_image;
+			Mat mat_kinect_stream = kinect.scaleMat;
+			QImage q_image;
 
-		cv::resize(mat_img, mat_img, cv::Size(ui->label_KinectDepth->width(), ui->label_KinectDepth->height()));
-		q_image = Mat2QImage_color(mat_img);
-		ui->label_KinectDepth->setPixmap(QPixmap::fromImage(q_image));
+			cv::resize(mat_kinect_stream, mat_kinect_stream, cv::Size(ui->label_KinectDepth->width(), ui->label_KinectDepth->height()));
+			q_image = Mat2QImage_color(mat_kinect_stream);
+			ui->label_KinectDepth->setPixmap(QPixmap::fromImage(q_image));
+
+			// Basler colors
+			vec_color.clear();
+			signal->ImageGrab(vec_color);
+
+			// color
+			Mat mat_basler_stream = vec_color.at(0);
+			Mat resized_img;
+			cv::resize(mat_basler_stream, resized_img, cv::Size(ui->label_BaslerColor1->width(), ui->label_BaslerColor1->height()));
+			q_image = Mat2QImage_color(resized_img);
+			ui->label_BaslerColor1->setPixmap(QPixmap::fromImage(q_image));
+			
+			mat_basler_stream = vec_color.at(1);
+			cv::resize(mat_basler_stream, resized_img, cv::Size(ui->label_BaslerColor2->width(), ui->label_BaslerColor2->height()));
+			q_image = Mat2QImage_color(resized_img);
+			ui->label_BaslerColor2->setPixmap(QPixmap::fromImage(q_image));
+			
+			mat_basler_stream = vec_color.at(2);
+			cv::resize(mat_basler_stream, resized_img, cv::Size(ui->label_BaslerColor3->width(), ui->label_BaslerColor3->height()));
+			q_image = Mat2QImage_color(resized_img);
+			ui->label_BaslerColor3->setPixmap(QPixmap::fromImage(q_image));
+			
+			mat_basler_stream = vec_color.at(3);
+			cv::resize(mat_basler_stream, resized_img, cv::Size(ui->label_BaslerColor4->width(), ui->label_BaslerColor4->height()));
+			q_image = Mat2QImage_color(resized_img);
+			ui->label_BaslerColor4->setPixmap(QPixmap::fromImage(q_image));
+
+
+			if (stream_save_flag) {
+				kinect.saveDepth(sequence_save_dir_path, sequence_cnt);
+				for (int i = 0; i < vec_color.size(); i++)
+				{
+					imwrite(sequence_save_dir_path + "color" + to_string(i) + "_" + to_string(sequence_cnt) + ".bmp", vec_color[i]);
+				}
+				sequence_cnt++;
+			}
+			if (still_save_flag) {
+				kinect.saveDepth(still_save_dir_path, still_cnt);
+				for (int i = 0; i < vec_color.size(); i++)
+				{
+					imwrite(still_save_dir_path + "color" + to_string(i) + "_" + to_string(still_cnt) + ".bmp", vec_color[i]);
+				}
+				still_cnt++;
+				still_save_flag = false;
+			}
+		}
 	}
 
 	// stream off
-	Mat mat_img = Mat::zeros(640, 480, CV_32FC1);
-	QImage q_image;
-	cv::resize(mat_img, mat_img, cv::Size(ui->label_KinectDepth->width(), ui->label_KinectDepth->height()));
-	q_image = Mat2QImage_depth(mat_img);
-	ui->label_KinectDepth->setPixmap(QPixmap::fromImage(q_image));
+	{
+		Mat mat_img = Mat::zeros(640, 480, CV_32FC1);
+		QImage q_image;
+		cv::resize(mat_img, mat_img, cv::Size(ui->label_KinectDepth->width(), ui->label_KinectDepth->height()));
+		q_image = Mat2QImage_depth(mat_img);
+		ui->label_KinectDepth->setPixmap(QPixmap::fromImage(q_image));
+
+		cv::resize(mat_img, mat_img, cv::Size(ui->label_BaslerColor1->width(), ui->label_BaslerColor1->height()));
+		q_image = Mat2QImage_depth(mat_img);
+		ui->label_BaslerColor1->setPixmap(QPixmap::fromImage(q_image));
+		ui->label_BaslerColor2->setPixmap(QPixmap::fromImage(q_image));
+		ui->label_BaslerColor3->setPixmap(QPixmap::fromImage(q_image));
+		ui->label_BaslerColor4->setPixmap(QPixmap::fromImage(q_image));
+	}
 }
 
 
@@ -197,56 +255,18 @@ void MainWindow::showEvent(QShowEvent* event) {
 	boost::thread thread(boost::bind(&boost::asio::io_service::run, &io_service));
 
 	signal = new CSyncSignal;
-
-	if (!signal->Initialize())
-		;//return 1;
+	signal->Initialize();
 }
 
 void MainWindow::on_pushButton_StillShotCapture_clicked()
 {
 	server.m_pSession->PostQuery("still_capture");
-
-	kinect.update();
-	kinect.drawDepth();
-	kinect.saveDepth();
+	still_save_flag = true;
 }
 
 void MainWindow::on_pushButton_SequenceCapture_clicked()
 {
-	//for (;;)
-	//{
-	//	std::array<char, 128> buf; 
-	//	buf.assign(0);
-	//	boost::system::error_code error;
-	//	size_t len = socket_.read_some(boost::asio::buffer(buf), error);
-	//
-	//	if (error) {
-	//		if (error == boost::asio::error::eof) {
-	//
-	//			std::cout << "클라이언트와 연결이 끊어졌습니다" << std::endl;
-	//		}
-	//		else
-	//		{
-	//			std::cout << "error No: " << error.value() << " error Message: " << error.message() << std::endl;
-	//		}
-	//		break;
-	//	}
-	//
-	//	std::cout << "클라이언트에서 받은 메시지: " << &buf[0] << std::endl;
-	//	char szMessage[128] = { 0, }; 
-	//	sprintf_s(szMessage, 128 - 1, "Re:%s", &buf[0]);
-	//	int nMsgLen = strnlen_s(szMessage, 128 - 1);
-	//
-	//	std::cout << boost::chrono::system_clock::now() << '\n';
-	//	kinect.update();
-	//	kinect.drawDepth();
-	//	kinect.showDepth();
-	//	cv::waitKey(30);
-	//
-	//	boost::system::error_code ignored_error;
-	//	socket_.write_some(boost::asio::buffer(szMessage, nMsgLen), ignored_error);
-	//	std::cout << "클라이언트에 보낸 메시지: " << szMessage << std::endl;
-	//}
+	stream_save_flag = !stream_save_flag;
 }
 
 void MainWindow::on_pushButton_StreamOn_clicked()
@@ -264,21 +284,9 @@ void MainWindow::on_pushButton_StreamOff_clicked()
 
 void MainWindow::on_pushButton_Quit_clicked()
 {
+	server.m_pSession->PostQuery("stream_off");
+	stream_on_flag = false;
+
 	server.m_pSession->PostQuery("program_quit");
 	close();	
-}
-
-void MainWindow::on_pushButton_ColorCapture_clicked()
-{
-	if (vec_color.size() == 0 && vec_depth.size() == 0)
-		signal->ImageGrab(vec_color, vec_depth);
-	
-	
-	for (int i = 0; i < vec_color.size(); i++)
-	{
-		imwrite("result/color" + to_string(i) + "_" + to_string(1) + ".bmp", vec_color[i]);
-	}
-	
-	vec_color.clear();
-	vec_depth.clear();
 }

@@ -6,9 +6,11 @@
 #include <opencv2/opencv.hpp>
 
 #include <vector>
+#include <string>
 
 #include <wrl/client.h>
 using namespace Microsoft::WRL;
+using namespace std;
 
 class Kinect
 {
@@ -26,9 +28,6 @@ public:
     unsigned int depthBytesPerPixel;
     cv::Mat depthMat;
 	cv::Mat scaleMat;
-
-	int cnt = 0;
-
 public:
     // Constructor
     Kinect();
@@ -70,7 +69,7 @@ public:
     // Show Depth
     inline void showDepth();
 
-	void saveDepth();
+	void saveDepth(string dir_path, int cnt);
 };
 
 #endif // __APP__

@@ -71,14 +71,14 @@ void CBaslerCameraCapture::CalibrationCapture(vector<Mat>& vectorImages)
 	for (int i = 0; i < m_VectorCameras.size(); i++)
 	{
 		m_VectorCameras[i]->GrabOne(1000, ptrGrabResult, TimeoutHandling_ThrowException);
-
+	
 		CDeviceInfo info = m_VectorCameras[i]->GetDeviceInfo();
 		String_t serial = info.GetSerialNumber();
-
+	
 		if (ptrGrabResult->GrabSucceeded())
 		{
 			int index;
-
+		
 			switch (atoi(serial))
 			{
 			case 21041255:
@@ -86,7 +86,7 @@ void CBaslerCameraCapture::CalibrationCapture(vector<Mat>& vectorImages)
 				// cam1 or cam5
 				index = 0;
 				break;
-
+		
 			case 21041650:
 			case 20829222:
 				// cam2 or cam6
@@ -101,8 +101,8 @@ void CBaslerCameraCapture::CalibrationCapture(vector<Mat>& vectorImages)
 				index = 3;
 				break;
 			}
-
-
+		
+		
 			Mat matImageBayer(ptrGrabResult->GetHeight(), ptrGrabResult->GetWidth(), CV_8UC1, ptrGrabResult->GetBuffer());
 			cvtColor(matImageBayer, vectorImages[index], CV_BayerGB2RGB);
 		}

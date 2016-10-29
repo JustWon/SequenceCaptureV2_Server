@@ -172,14 +172,12 @@ inline void Kinect::showDepth()
 }
 
 // Save Depth
-void Kinect::saveDepth()
+void Kinect::saveDepth(string dir_path, int cnt)
 {
 	if (depthMat.empty()) {
 		return;
 	}
 
 	// Save Image 
-	char filename[1024];
-	sprintf(filename, "result/image%d.png", cnt++);
-	cvSaveImage(filename, &IplImage(depthMat));
+	cvSaveImage((dir_path + "kinect_depth" + to_string(cnt) + ".png").c_str() , &IplImage(depthMat));
 }

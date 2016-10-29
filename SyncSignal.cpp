@@ -121,29 +121,19 @@ void CSyncSignal::Stop()
 void CSyncSignal::Snapshot()
 {
 	vector<Mat> vectorColorCalibration;
-	vector<Mat> vectorDepthCalibration;
 
 	pClassColorCameraCapture->CalibrationCapture(vectorColorCalibration);
 
 	for (int i = 0; i < vectorColorCalibration.size(); i++)
 	{
-		imwrite("result/color/color" + to_string(i) + "_" + to_string(m_DwCalibrationFrameCount) + ".png", vectorColorCalibration[i]);
-		//imshow("color" + to_string(i), vectorColorCalibration[i]);
+		imwrite("result/color" + to_string(i) + "_" + to_string(m_DwCalibrationFrameCount) + ".bmp", vectorColorCalibration[i]);
 	}
-
-	imwrite("result/depth/depth_distance_" + to_string(m_DwCalibrationFrameCount) + ".png", vectorDepthCalibration[0]);
-	imwrite("result/depth/depth_amplitude_" + to_string(m_DwCalibrationFrameCount) + ".png", vectorDepthCalibration[1]);
-	imwrite("result/depth/depth_confidence_" + to_string(m_DwCalibrationFrameCount) + ".png", vectorDepthCalibration[2]);
-
-	//imshow("depth_distance", vectorDepthCalibration[0]);
-	//imshow("depth_amplitude", vectorDepthCalibration[1]);
-	//imshow("depth_confidence", vectorDepthCalibration[2]);
 
 	waitKey(10);
 	cout << "Snapshot: " << m_DwCalibrationFrameCount++ << endl;
 }
 
-void CSyncSignal::ImageGrab(vector<Mat> &vec_color, vector<Mat> &vec_depth)
+void CSyncSignal::ImageGrab(vector<Mat> &vec_color)
 {
 	pClassColorCameraCapture->CalibrationCapture(vec_color);
 }

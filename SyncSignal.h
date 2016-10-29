@@ -29,6 +29,6 @@ public:
 	void Stop();
 	void Snapshot();
 
-	void ImageGrab(vector<Mat>&, vector<Mat>&);
+	void ImageGrab(vector<Mat>&);
 };
 

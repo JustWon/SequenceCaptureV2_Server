@@ -32,6 +32,10 @@ public:
     ~MainWindow();
 	void showEvent(QShowEvent *ev);
 	bool stream_on_flag = false;
+	bool middle_of_saving = false;
+	bool stream_save_flag = false;
+	bool still_save_flag = false;
+	
 	void stream_on();
 
 private slots:
@@ -42,8 +46,6 @@ private slots:
 
     void on_pushButton_Quit_clicked();
 
-    void on_pushButton_ColorCapture_clicked();
-
 private:
     Ui::MainWindow *ui;
 
@@ -52,7 +54,12 @@ private:
 	CSyncSignal* signal;
 
 	vector<Mat> vec_color;
-	vector<Mat> vec_depth;
+
+	int still_cnt = 0;
+	int sequence_cnt = 0;
+
+	string still_save_dir_path = "result/still/";
+	string sequence_save_dir_path = "result/sequence/";
 };
 
 #endif // MAINWINDOW_H
