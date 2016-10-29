@@ -2,8 +2,12 @@
 
 #include <vector>
 #include <opencv2/highgui/highgui.hpp>
+#include <opencv2\opencv.hpp>
+#include <thread>
 #include <pylon/PylonIncludes.h>
 #include <pylon/gige/BaslerGigEInstantCamera.h>
+
+#define HOST
 
 using namespace std;
 using namespace cv;

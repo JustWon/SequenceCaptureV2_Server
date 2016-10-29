@@ -71,6 +71,12 @@
     <ClCompile Include="GeneratedFiles\Release\moc_threadtest.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="BaslerCameraCapture.cpp">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SyncSignal.cpp">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="mainwindow.h">
@@ -93,6 +99,12 @@
       <Filter>Generated Files</Filter>
     </ClInclude>
     <ClInclude Include="util.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BaslerCameraCapture.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SyncSignal.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
   </ItemGroup>

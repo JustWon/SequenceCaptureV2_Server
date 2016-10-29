@@ -14,6 +14,7 @@
 #include "threadtest.h"
 #include <opencv2\imgproc\imgproc.hpp>
 #include <vector>
+#include "SyncSignal.h"
 
 using namespace std;
 using namespace cv;
@@ -41,10 +42,17 @@ private slots:
 
     void on_pushButton_Quit_clicked();
 
+    void on_pushButton_ColorCapture_clicked();
+
 private:
     Ui::MainWindow *ui;
 
 	Kinect kinect;
+
+	CSyncSignal* signal;
+
+	vector<Mat> vec_color;
+	vector<Mat> vec_depth;
 };
 
 #endif // MAINWINDOW_H

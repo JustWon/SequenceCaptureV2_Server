@@ -195,6 +195,11 @@ void MainWindow::showEvent(QShowEvent* event) {
 	QWidget::showEvent(event);
 
 	boost::thread thread(boost::bind(&boost::asio::io_service::run, &io_service));
+
+	signal = new CSyncSignal;
+
+	if (!signal->Initialize())
+		;//return 1;
 }
 
 void MainWindow::on_pushButton_StillShotCapture_clicked()
@@ -261,4 +266,19 @@ void MainWindow::on_pushButton_Quit_clicked()
 {
 	server.m_pSession->PostQuery("program_quit");
 	close();	
+}
+
+void MainWindow::on_pushButton_ColorCapture_clicked()
+{
+	if (vec_color.size() == 0 && vec_depth.size() == 0)
+		signal->ImageGrab(vec_color, vec_depth);
+	
+	
+	for (int i = 0; i < vec_color.size(); i++)
+	{
+		imwrite("result/color" + to_string(i) + "_" + to_string(1) + ".bmp", vec_color[i]);
+	}
+	
+	vec_color.clear();
+	vec_depth.clear();
 }
