@@ -184,10 +184,10 @@ void MainWindow::stream_on()
 		q_image = Mat2QImage_color(mat_kinect_stream);
 		ui->label_KinectDepth->setPixmap(QPixmap::fromImage(q_image));
 
-		// Basler colors
+		//// Basler colors
 		vec_color.clear();
 		signal->ImageGrab(vec_color);
-
+		
 		// color
 		Mat mat_basler_stream = vec_color.at(0);
 		Mat resized_img;
@@ -209,7 +209,7 @@ void MainWindow::stream_on()
 		cv::resize(mat_basler_stream, resized_img, cv::Size(ui->label_BaslerColor4->width(), ui->label_BaslerColor4->height()));
 		q_image = Mat2QImage_color(resized_img);
 		ui->label_BaslerColor4->setPixmap(QPixmap::fromImage(q_image));
-
+		
 
 		if (stream_save_flag) {
 			kinect.saveDepth(sequence_save_dir_path, sequence_cnt);
@@ -252,9 +252,7 @@ void MainWindow::stream_on()
 std::wstring FormatTime(boost::posix_time::ptime now)
 {
 	using namespace boost::posix_time;
-	static std::locale loc(std::wcout.getloc(),
-		new wtime_facet(L"%Y%m%d_%H%M%S"));
-
+	static std::locale loc(std::wcout.getloc(),	new wtime_facet(L"%Y%m%d_%H%M%S"));
 	std::basic_stringstream<wchar_t> wss;
 	wss.imbue(loc);
 	wss << now;
@@ -271,7 +269,7 @@ void MainWindow::showEvent(QShowEvent* event) {
 
 	boost::filesystem::create_directory("result");
 	using namespace boost::posix_time;
-	ptime now = second_clock::universal_time();
+	ptime now = second_clock::local_time();
 
 	std::wstring ws(FormatTime(now));
 	std::wcout << "Sandbox name: " << ws << std::endl;
