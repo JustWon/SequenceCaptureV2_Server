@@ -31,12 +31,15 @@ public:
     ~MainWindow();
 	void showEvent(QShowEvent *ev);
 	bool stream_on_flag = false;
+	void stream_on();
 
 private slots:
 	void on_pushButton_StillShotCapture_clicked();
     void on_pushButton_SequenceCapture_clicked();
     void on_pushButton_StreamOn_clicked();
     void on_pushButton_StreamOff_clicked();
+
+    void on_pushButton_Quit_clicked();
 
 private:
     Ui::MainWindow *ui;

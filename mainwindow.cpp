@@ -5,7 +5,6 @@
 const char SERVER_IP[] = "127.0.0.1";
 const unsigned short PORT_NUMBER = 31400;
 
-
 class Session
 {
 public:
@@ -167,6 +166,31 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::stream_on()
+{
+	while (stream_on_flag)
+	{
+		kinect.update();
+		kinect.drawDepth();
+		kinect.showDepth();
+
+		Mat mat_img = kinect.scaleMat;
+		QImage q_image;
+
+		cv::resize(mat_img, mat_img, cv::Size(ui->label_KinectDepth->width(), ui->label_KinectDepth->height()));
+		q_image = Mat2QImage_color(mat_img);
+		ui->label_KinectDepth->setPixmap(QPixmap::fromImage(q_image));
+	}
+
+	// stream off
+	Mat mat_img = Mat::zeros(640, 480, CV_32FC1);
+	QImage q_image;
+	cv::resize(mat_img, mat_img, cv::Size(ui->label_KinectDepth->width(), ui->label_KinectDepth->height()));
+	q_image = Mat2QImage_depth(mat_img);
+	ui->label_KinectDepth->setPixmap(QPixmap::fromImage(q_image));
+}
+
+
 void MainWindow::showEvent(QShowEvent* event) {
 	QWidget::showEvent(event);
 
@@ -231,4 +255,10 @@ void MainWindow::on_pushButton_StreamOff_clicked()
 {
 	server.m_pSession->PostQuery("stream_off");
 	stream_on_flag = false;
+}
+
+void MainWindow::on_pushButton_Quit_clicked()
+{
+	server.m_pSession->PostQuery("program_quit");
+	close();	
 }
