@@ -176,19 +176,23 @@ void MainWindow::stream_on()
 		kinect.update();
 		kinect.drawDepth();
 		kinect.showDepth();
+		kinect.drawInfrared();
+		kinect.showInfrared();
+		kinect.drawColor();
+		kinect.showColor();
 
 		Mat mat_kinect_stream = kinect.scaleMat;
 		QImage q_image;
 
 		cv::resize(mat_kinect_stream, mat_kinect_stream, cv::Size(ui->label_KinectDepth->width(), ui->label_KinectDepth->height()));
+		//flip(mat_kinect_stream, mat_kinect_stream, 1);
 		q_image = Mat2QImage_color(mat_kinect_stream);
 		ui->label_KinectDepth->setPixmap(QPixmap::fromImage(q_image));
 
+		
 		//// Basler colors
 		vec_color.clear();
-		signal->ImageGrab(vec_color);
-		
-		// color
+		signal->ImageGrab(vec_color);  
 		Mat mat_basler_stream = vec_color.at(0);
 		Mat resized_img;
 		cv::resize(mat_basler_stream, resized_img, cv::Size(ui->label_BaslerColor1->width(), ui->label_BaslerColor1->height()));
@@ -209,19 +213,24 @@ void MainWindow::stream_on()
 		cv::resize(mat_basler_stream, resized_img, cv::Size(ui->label_BaslerColor4->width(), ui->label_BaslerColor4->height()));
 		q_image = Mat2QImage_color(resized_img);
 		ui->label_BaslerColor4->setPixmap(QPixmap::fromImage(q_image));
-		
 
-		if (stream_save_flag) {
+		if (stream_save_flag && sync_flag) {
 			kinect.saveDepth(sequence_save_dir_path, sequence_cnt);
+			
 			for (int i = 0; i < vec_color.size(); i++)
 			{
 				imwrite(sequence_save_dir_path + "color" + to_string(i) + "_" + to_string(sequence_cnt) + ".bmp", vec_color[i]);
 			}
+			
 			std::cout << sequence_save_dir_path + " seqeucne " + to_string(sequence_cnt) + " saved" << endl;
+			server.m_pSession->PostQuery("sync_frame");
+			std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
 			sequence_cnt++;
 		}
 		if (still_save_flag) {
 			kinect.saveDepth(still_save_dir_path, still_cnt);
+			kinect.saveInfrared(still_save_dir_path, still_cnt);
 			for (int i = 0; i < vec_color.size(); i++)
 			{
 				imwrite(still_save_dir_path + "color" + to_string(i) + "_" + to_string(still_cnt) + ".bmp", vec_color[i]);
@@ -297,12 +306,15 @@ void MainWindow::on_pushButton_SequenceCapture_clicked()
 	if (!stream_save_flag)
 	{
 		stream_save_flag = true;
+		sync_flag = true;
 		server.m_pSession->PostQuery("sequence_capture_start");
+		//signal->Start();
 	}
 	else
 	{
 		stream_save_flag = false;
 		server.m_pSession->PostQuery("sequence_capture_stop");
+		//signal->Stop();
 	}
 }
 

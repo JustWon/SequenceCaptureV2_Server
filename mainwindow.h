@@ -10,7 +10,7 @@
 #include <boost/bind.hpp>
 #include <boost/chrono.hpp>
 #include <boost/thread.hpp>
-#include <boost\filesystem.hpp>
+#include <boost/filesystem.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 
 #include "app.h"
@@ -18,6 +18,9 @@
 #include <opencv2\imgproc\imgproc.hpp>
 #include <vector>
 #include "SyncSignal.h"
+
+#include <chrono>
+#include <thread>
 
 using namespace std;
 using namespace cv;
@@ -37,6 +40,7 @@ public:
 	bool stream_on_flag = false;
 	bool stream_save_flag = false;
 	bool still_save_flag = false;
+	bool sync_flag = false;
 	
 	void stream_on();
 

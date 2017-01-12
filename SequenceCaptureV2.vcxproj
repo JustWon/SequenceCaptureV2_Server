@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
@@ -58,6 +58,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>c:\Program Files\Basler\pylon 4\genicam\library\cpp\include\;c:\Program Files\Basler\pylon 4\pylon\include\;C:\Program Files\Microsoft SDKs\Kinect\v2.0_1409\inc\;C:\boost_1_60_0;C:\OpenCV3.0\build\include;c:\Program Files (x86)\National Instruments\NI-DAQ\DAQmx ANSI C Dev\include\;$(IncludePath)</IncludePath>
     <LibraryPath>c:\Program Files\Basler\pylon 4\pylon\lib\Win32\;c:\Program Files\Microsoft SDKs\Kinect\v2.0_1409\Lib\x86\;C:\boost_1_60_0\stage\lib;C:\OpenCV3.0\build\x86\vc12\lib;C:\Program Files\Basler\pylon 4\genicam\library\cpp\lib\win32_i86;C:\Program Files (x86)\National Instruments\NI-DAQ\DAQmx ANSI C Dev\lib\msvc;$(LibraryPath)</LibraryPath>
+    <ExecutablePath>$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>c:\Program Files\Basler\pylon 4\genicam\library\cpp\include\;c:\Program Files\Basler\pylon 4\pylon\include\;C:\Program Files\Microsoft SDKs\Kinect\v2.0_1409\inc\;C:\boost_1_60_0;C:\OpenCV3.0\build\include;c:\Program Files (x86)\National Instruments\NI-DAQ\DAQmx ANSI C Dev\include\;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
@@ -128,7 +129,7 @@
       <AdditionalLibraryDirectories>$(QTDIR)\lib;C:\utils\postgresql\pgsql\lib;C:\utils\my_sql\my_sql\lib;$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" %(AdditionalOptions)</AdditionalOptions>
       <DataExecutionPrevention>true</DataExecutionPrevention>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreImportLibrary>true</IgnoreImportLibrary>
       <OutputFile>$(OutDir)\SequenceCaptureV2.exe</OutputFile>
       <RandomizedBaseAddress>true</RandomizedBaseAddress>

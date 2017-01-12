@@ -20,6 +20,8 @@ public:
 
     // Reader
     ComPtr<IDepthFrameReader> depthFrameReader;
+	ComPtr<IInfraredFrameReader> infraredFrameReader;
+	ComPtr<IColorFrameReader> colorFrameReader;
 
     // Depth Buffer
     std::vector<UINT16> depthBuffer;
@@ -28,6 +30,22 @@ public:
     unsigned int depthBytesPerPixel;
     cv::Mat depthMat;
 	cv::Mat scaleMat;
+
+	// Infrared Buffer
+	std::vector<UINT16> infraredBuffer;
+	int infraredWidth;
+	int infraredHeight;
+	unsigned int infraredBytesPerPixel;
+	cv::Mat infraredMat;
+	cv::Mat scaleInfraredMat;
+
+	// Color Buffer
+	std::vector<BYTE> colorBuffer;
+	int colorWidth;
+	int colorHeight;
+	unsigned int colorBytesPerPixel;
+	cv::Mat colorMat;
+
 public:
     // Constructor
     Kinect();
@@ -48,6 +66,12 @@ public:
     // Initialize Depth
     inline void initializeDepth();
 
+	// Initialize Color
+	inline void initializeColor();
+
+	// Initialize Infrared
+	inline void initializeInfrared();
+
     // Finalize
     void finalize();
 
@@ -57,11 +81,23 @@ public:
     // Update Depth
     inline void updateDepth();
 
+	// Update Infrared
+	inline void updateInfrared();
+	
+	// Update Color
+	inline void updateColor();
+
     // Draw Data
     void draw();
 
     // Draw Depth
     inline void drawDepth();
+
+	// Draw Infrared
+	inline void drawInfrared();
+
+	// Draw Color
+	inline void drawColor();
 
     // Show Data
     void show();
@@ -69,7 +105,14 @@ public:
     // Show Depth
     inline void showDepth();
 
+	// Show Infrared
+	inline void showInfrared();
+
+	// Show Color
+	inline void showColor();
+
 	void saveDepth(string dir_path, int cnt);
+	void saveInfrared(string dir_path, int cnt);
 };
 
 #endif // __APP__

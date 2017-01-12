@@ -101,8 +101,7 @@ void CBaslerCameraCapture::CalibrationCapture(vector<Mat>& vectorImages)
 				index = 3;
 				break;
 			}
-		
-		
+
 			Mat matImageBayer(ptrGrabResult->GetHeight(), ptrGrabResult->GetWidth(), CV_8UC1, ptrGrabResult->GetBuffer());
 			cvtColor(matImageBayer, vectorImages[index], CV_BayerGB2RGB);
 		}
@@ -159,7 +158,7 @@ void CBaslerCameraCapture::CaptureThread(CBaslerGigEInstantCamera* pCamera)
 			dwFrameNumber = ptrGrabResult->GetBlockID() - 1;
 			Mat matImageBayer(ptrGrabResult->GetHeight(), ptrGrabResult->GetWidth(), CV_8UC1, ptrGrabResult->GetBuffer());
 			strImageFilePath = strImageFolderPath + serial.c_str() + "_" + to_string(dwFrameNumber) + ".png";
-			imwrite(strImageFilePath, matImageBayer);
+			imwrite("test.png", matImageBayer);
 		}
 		catch (TimeoutException& e)
 		{
